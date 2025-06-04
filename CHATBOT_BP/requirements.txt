@@ -1,0 +1,8 @@
+
+PyMuPDF
+python-docx
+sentence-transformers
+faiss-cpu
+python-magic
+gradio
+requests
