@@ -13,6 +13,7 @@ type Message = {
   role: "user" | "assistant"
   content: string
   sources?: string[] // arreglo opcional de fuentes
+  images?: string[]
 }
 
 const initialMessages: Message[] = [
@@ -49,7 +50,7 @@ export default function ChatInterface() {
     setIsTyping(true)
 
     try {
-      const response = await fetch("http://localhost:5000/api/chat", {
+      const response = await fetch("http://localhost:8000/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ question: input }),
@@ -60,18 +61,17 @@ export default function ChatInterface() {
       }
 
       const data = await response.json()
-
-      // Procesamos las fuentes dividiéndolas en un arreglo, si vienen
       const sourcesArray: string[] | undefined = data.sources
-        ? data.sources.split("\n\n").map((s: string) => s.trim()).filter(Boolean)
-        : undefined
+      const imagesArray: string[] | undefined = data.images    // <--- NUEVO
 
       const botMessage: Message = {
         id: Date.now() + 1,
         role: "assistant",
         content: data.answer || "Sorry, I couldn't get an answer.",
         sources: sourcesArray,
+        images: imagesArray,        
       }
+
 
       setMessages((prev) => [...prev, botMessage])
     } catch (error) {
@@ -121,6 +121,21 @@ export default function ChatInterface() {
                       </div>
                       <div className="flex-1 whitespace-pre-wrap">{message.content}</div>
                     </div>
+
+
+                    {/* Mostrar images si existen */}
+                    {message.role === "assistant" && message.images && message.images.length > 0 && (
+                      <div className="mt-4 flex flex-wrap gap-2">
+                        {message.images.map((img, i) => (
+                          <img
+                            key={i}
+                            src={img.startsWith("/images") ? `http://localhost:8000${img}` : img}
+                            alt="Relevant"
+                            className="w-24 h-24 object-contain border"
+                          />
+                        ))}
+                      </div>
+                    )}
 
                     {/* Mostrar sources si existen */}
                     {message.role === "assistant" && message.sources && message.sources.length > 0 && (

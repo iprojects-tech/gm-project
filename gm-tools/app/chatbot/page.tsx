@@ -1,13 +1,14 @@
-import ChatInterface from "@/components/chat-interface"
+"use client"
+import React, { useState } from "react"
+import DirectorySelector from "@/components/DirectorySelector"
+import ChatPanel from "@/components/chat-panel"
 
 export default function ChatbotPage() {
+  const [ready, setReady] = useState(false)
   return (
-    <div className="max-w-4xl mx-auto">
-      <h1 className="text-3xl font-bold mb-6">AI Best Practices Chatbot</h1>
-      <p className="text-muted-foreground mb-6">
-        Ask questions about workplace behavior, coding standards, safety protocols, and other best practices.
-      </p>
-      <ChatInterface />
+    <div>
+      {!ready && <DirectorySelector onProcessed={() => setReady(true)} />}
+      {ready && <ChatPanel />}
     </div>
   )
 }

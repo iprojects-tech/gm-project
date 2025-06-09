@@ -12,6 +12,7 @@ type Message = {
   role: "user" | "bot"
   content: string
   sources?: string[]
+  images?: string[]   // <--- NUEVO
 }
 
 const initialMessages: Message[] = [
@@ -24,7 +25,6 @@ export default function ChatPanel() {
   const [isTyping, setIsTyping] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
-  // Scroll to bottom when messages change
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
   }, [messages])
@@ -42,21 +42,20 @@ export default function ChatPanel() {
       const res = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message: input }),
+        body: JSON.stringify({ question: input }), // <-- CAMBIO A "question"
       })
 
-      if (!res.ok) throw new Error("Error en la respuesta del servidor")
+      if (!res.ok) throw new Error("Server response error")
 
       const data = await res.json()
-      // data: { answer: string, sources: string }
+      // data: { answer: string, sources: string[], images: string[] }
 
       const botMessage: Message = {
         id: Date.now() + 1,
         role: "bot",
-        content: data.answer.trim(),
-        sources: data.sources
-          ? data.sources.split("\n\n").map((s: string) => s.trim())
-          : [],
+        content: data.answer?.trim() || "Sorry, I couldn't get an answer.",
+        sources: data.sources || [],
+        images: data.images || [],
       }
 
       setMessages((prev) => [...prev, botMessage])
@@ -108,6 +107,20 @@ export default function ChatPanel() {
                     }`}
                   >
                     <p>{message.content}</p>
+                    {/* IMÁGENES */}
+                    {message.images && message.images.length > 0 && (
+                      <div className="mt-2 flex flex-wrap gap-2">
+                        {message.images.map((img, i) => (
+                          <img
+                            key={i}
+                            src={img.startsWith("/images") ? img : `/api${img}`}
+                            alt="Relevant"
+                            className="w-24 h-24 object-contain border"
+                          />
+                        ))}
+                      </div>
+                    )}
+                    {/* FUENTES */}
                     {message.sources && message.sources.length > 0 && (
                       <div className="mt-2 text-sm text-gray-600">
                         <strong>Sources:</strong>
@@ -133,18 +146,9 @@ export default function ChatPanel() {
                   </div>
                   <div className="p-3 rounded-lg bg-muted rounded-tl-none">
                     <div className="flex space-x-1">
-                      <div
-                        className="w-2 h-2 rounded-full bg-gray-400 animate-bounce"
-                        style={{ animationDelay: "0ms" }}
-                      ></div>
-                      <div
-                        className="w-2 h-2 rounded-full bg-gray-400 animate-bounce"
-                        style={{ animationDelay: "150ms" }}
-                      ></div>
-                      <div
-                        className="w-2 h-2 rounded-full bg-gray-400 animate-bounce"
-                        style={{ animationDelay: "300ms" }}
-                      ></div>
+                      <div className="w-2 h-2 rounded-full bg-gray-400 animate-bounce" style={{ animationDelay: "0ms" }}></div>
+                      <div className="w-2 h-2 rounded-full bg-gray-400 animate-bounce" style={{ animationDelay: "150ms" }}></div>
+                      <div className="w-2 h-2 rounded-full bg-gray-400 animate-bounce" style={{ animationDelay: "300ms" }}></div>
                     </div>
                   </div>
                 </div>
