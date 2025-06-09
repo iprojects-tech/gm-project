@@ -20,7 +20,6 @@ export default function VideoAnalyzerPanel() {
   const [analysisComplete, setAnalysisComplete] = useState(false)
   const [sentimentData, setSentimentData] = useState({
     positive: 65,
-    neutral: 25,
     negative: 10,
   })
 
@@ -56,7 +55,6 @@ export default function VideoAnalyzerPanel() {
       // Mock sentiment data - in a real app this would come from your analysis
       setSentimentData({
         positive: Math.floor(Math.random() * 60) + 20, // 20-80
-        neutral: Math.floor(Math.random() * 40) + 10, // 10-50
         negative: Math.floor(Math.random() * 30), // 0-30
       })
     }, 3000)
@@ -175,10 +173,6 @@ export default function VideoAnalyzerPanel() {
                     </div>
                     <div className="text-xs">Positive</div>
                   </div>
-                  <div className="p-2 rounded-lg bg-blue-100 dark:bg-blue-900/20">
-                    <div className="text-lg font-bold text-blue-600 dark:text-blue-400">{sentimentData.neutral}%</div>
-                    <div className="text-xs">Neutral</div>
-                  </div>
                   <div className="p-2 rounded-lg bg-red-100 dark:bg-red-900/20">
                     <div className="text-lg font-bold text-red-600 dark:text-red-400">{sentimentData.negative}%</div>
                     <div className="text-xs">Negative</div>
@@ -199,12 +193,6 @@ export default function VideoAnalyzerPanel() {
                         02:17
                       </span>
                       <span>Significant negative shift</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <span className="bg-blue-100 text-blue-800 text-xs px-2 py-0.5 rounded dark:bg-blue-900/30 dark:text-blue-300">
-                        03:52
-                      </span>
-                      <span>Return to neutral tone</span>
                     </li>
                   </ul>
                 </div>

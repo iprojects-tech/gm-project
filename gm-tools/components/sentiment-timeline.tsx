@@ -1,6 +1,7 @@
 "use client"
 
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts"
+import { ReactElement, SVGProps } from "react"
 
 interface TimelineData {
   time: string
@@ -24,12 +25,12 @@ export default function SentimentTimeline({ data }: SentimentTimelineProps) {
   const CustomTooltip = ({ active, payload, label }: any) => {
     if (active && payload && payload.length) {
       const value = payload[0].value
-      const sentiment = value > 0 ? (value > 50 ? "Positive" : "Neutral") : "Negative"
+      const sentiment = value > 0 ? "Positive" : "Negative"
 
       return (
         <div className="bg-white dark:bg-[#1a1a1a] p-2 border rounded shadow-sm text-sm">
           <p className="font-medium">{`Time: ${label}`}</p>
-          <p className={`${value > 50 ? "text-green-500" : value < 0 ? "text-red-500" : "text-gm-blue"}`}>
+          <p className={`${value > 0 ? "text-green-500" : "text-red-500"}`}>
             {`Sentiment: ${sentiment}`}
           </p>
         </div>
@@ -39,32 +40,45 @@ export default function SentimentTimeline({ data }: SentimentTimelineProps) {
     return null
   }
 
+  // Custom dot as a valid React SVGElement
+  const CustomDot = (props: any): ReactElement<SVGElement> => {
+    const { cx, cy, payload, index } = props
+    const color = payload.value > 0 ? "#22c55e" : "#ef4444"
+
+    return (
+      <circle
+        key={`dot-${index}`} // Esta línea corrige el error
+        cx={cx}
+        cy={cy}
+        r={6}
+        stroke={color}
+        strokeWidth={2.5}
+        fill="#fff"
+      />
+    )
+  }
+
   return (
-    <div className="h-[200px] w-full">
+    <div className="h-[400px] w-full max-w-full overflow-x-auto">
       <ResponsiveContainer width="100%" height="100%">
-        <LineChart data={chartData} margin={{ top: 10, right: 10, left: 0, bottom: 10 }}>
+        <LineChart data={chartData} margin={{ top: 40, right: 30, left: 10, bottom: 40 }}>
           <CartesianGrid strokeDasharray="3 3" vertical={false} opacity={0.3} />
-          <XAxis dataKey="time" />
+          <XAxis dataKey="time" tick={{ fontSize: 14 }} />
           <YAxis
             domain={[-100, 100]}
-            ticks={[-75, -50, -25, 0, 25, 50, 75]}
-            tickFormatter={(value) => {
-              if (value === 0) return "Neutral"
-              return Math.abs(value)
+            ticks={[-100, -75, -50, -25, 0, 25, 50, 75, 100]}
+            tick={{ fontSize: 14 }}
+            tickFormatter={(value: number, _index: number): string => {
+              return value === 0 ? "" : Math.abs(value).toString()
             }}
           />
           <Tooltip content={<CustomTooltip />} />
           <Line
             type="monotone"
             dataKey="value"
-            stroke="#0170CE" // GM Blue
-            strokeWidth={2}
-            dot={{
-              stroke: (entry) => (entry.value > 50 ? "#22c55e" : entry.value < 0 ? "#ef4444" : "#0170CE"),
-              strokeWidth: 2,
-              r: 4,
-              fill: "#fff",
-            }}
+            stroke="#0170CE"
+            strokeWidth={3}
+            dot={CustomDot}
           />
         </LineChart>
       </ResponsiveContainer>
