@@ -61,7 +61,7 @@ export default function VideoAnalyzer() {
     setAnalysisComplete(false)
 
     try {
-      const response = await fetch("http://localhost:8000/analizar", {
+      const response = await fetch("http://localhost:8080/analizar", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ url: youtubeUrl }),
