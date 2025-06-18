@@ -15,24 +15,34 @@ interface SentimentTimelineProps {
 
 export default function SentimentTimeline({ data }: SentimentTimelineProps) {
   // Transform data for the chart
-  const chartData = data.map((item) => ({
-    time: item.time,
-    value: item.sentiment === "negative" ? -item.value : item.value,
-    sentiment: item.sentiment,
-  }))
+  const chartData = data.map((item) => {
+    let valor = item.value
+    if (item.sentiment === "negative") valor = -valor
+    else if (item.sentiment === "neutral") valor = 0
+    return {
+      time: item.time,
+      value: valor,
+      sentiment: item.sentiment,
+    }
+  })
 
-  // Custom tooltip to show sentiment type
+  // Custom tooltip
   const CustomTooltip = ({ active, payload, label }: any) => {
     if (active && payload && payload.length) {
-      const value = payload[0].value
-      const sentiment = value > 0 ? "Positive" : "Negative"
+      const val = payload[0].value
+      let sentiment = "Neutral"
+      if (val  >= 66) sentiment = "Positive"
+      else if (val <= 33) sentiment = "Negative"
+
+      const color =
+        sentiment === "Positive" ? "text-green-500" :
+        sentiment === "Negative" ? "text-red-500" :
+        "text-yellow-500"
 
       return (
         <div className="bg-white dark:bg-[#1a1a1a] p-2 border rounded shadow-sm text-sm">
           <p className="font-medium">{`Time: ${label}`}</p>
-          <p className={`${value > 0 ? "text-green-500" : "text-red-500"}`}>
-            {`Sentiment: ${sentiment}`}
-          </p>
+          <p className={`${color}`}>{`Sentiment: ${sentiment}`}</p>
         </div>
       )
     }
@@ -40,14 +50,16 @@ export default function SentimentTimeline({ data }: SentimentTimelineProps) {
     return null
   }
 
-  // Custom dot as a valid React SVGElement
+  // Custom dot
   const CustomDot = (props: any): ReactElement<SVGElement> => {
     const { cx, cy, payload, index } = props
-    const color = payload.value > 0 ? "#22c55e" : "#ef4444"
+    let color = "#facc15" // amarillo para neutral
+    if (payload.value >= 66) color = "#22c55e"
+    else if (payload.value <= 33) color = "#ef4444"
 
     return (
       <circle
-        key={`dot-${index}`} // Esta línea corrige el error
+        key={`dot-${index}`}
         cx={cx}
         cy={cy}
         r={6}
@@ -65,8 +77,8 @@ export default function SentimentTimeline({ data }: SentimentTimelineProps) {
           <CartesianGrid strokeDasharray="3 3" vertical={false} opacity={0.3} />
           <XAxis dataKey="time" tick={{ fontSize: 14 }} />
           <YAxis
-            domain={[-100, 100]}
-            ticks={[-100, -75, -50, -25, 0, 25, 50, 75, 100]}
+            domain={[0, 100]}
+            ticks={[0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85, 90, 95, 100]}
             tick={{ fontSize: 14 }}
             tickFormatter={(value: number, _index: number): string => {
               return value === 0 ? "" : Math.abs(value).toString()
