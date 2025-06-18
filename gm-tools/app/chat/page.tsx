@@ -9,7 +9,7 @@ export default function ChatbotPage() {
   return (
     <div>
       {!ready && <DirectorySelector onProcessed={() => setReady(true)} />}
-      {ready && <ChatInterface />}
+      {ready && <ChatPanel />}
     </div>
   )
 }

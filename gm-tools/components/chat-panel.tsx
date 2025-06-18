@@ -6,17 +6,19 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/componen
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { ScrollArea } from "@/components/ui/scroll-area"
+import ImageThumbnails, { ImageData } from "./MiniImages"
+
 
 type Message = {
   id: number
   role: "user" | "bot"
   content: string
   sources?: string[]
-  images?: string[]   // <--- NUEVO
+  images?: ImageData[]
 }
 
 const initialMessages: Message[] = [
-  { id: 1, role: "bot", content: "Hello! How can I help you today?" },
+  { id: 1, role: "bot", content: "Hello! Welcome to the Best Practices AI chatbot. How can I help you today?" },
 ]
 
 export default function ChatPanel() {
@@ -72,11 +74,11 @@ export default function ChatPanel() {
   }
 
   return (
-    <Card className="h-full flex flex-col">
+    <Card className="h-full flex flex-col max-w-[60%] mx-auto pt-5 mt-10">
       <CardHeader className="pb-2">
         <CardTitle className="flex items-center gap-2">
           <Bot size={20} className="text-primary" />
-          AI Chatbot
+          Best Practices AI Chatbot
         </CardTitle>
       </CardHeader>
       <CardContent className="flex-grow overflow-hidden p-0">
@@ -88,38 +90,33 @@ export default function ChatPanel() {
                 className={`flex ${message.role === "user" ? "justify-end" : "justify-start"}`}
               >
                 <div
-                  className={`flex items-start gap-2 max-w-[80%] ${
-                    message.role === "user" ? "flex-row-reverse" : "flex-row"
-                  }`}
+                  className={`flex items-start gap-2 max-w-[80%] ${message.role === "user" ? "flex-row-reverse" : "flex-row"
+                    }`}
                 >
                   <div
-                    className={`p-2 rounded-full ${
-                      message.role === "user" ? "bg-primary text-primary-foreground" : "bg-muted"
-                    }`}
+                    className={`p-2 rounded-full ${message.role === "user" ? "bg-primary text-primary-foreground" : "bg-muted"
+                      }`}
                   >
                     {message.role === "user" ? <User size={16} /> : <Bot size={16} />}
                   </div>
                   <div
-                    className={`p-3 rounded-lg ${
-                      message.role === "user"
+                    className={`p-3 rounded-lg ${message.role === "user"
                         ? "bg-primary text-primary-foreground rounded-tr-none"
                         : "bg-muted rounded-tl-none"
-                    }`}
+                      }`}
                   >
                     <p>{message.content}</p>
                     {/* IMÁGENES */}
+
                     {message.images && message.images.length > 0 && (
-                      <div className="mt-2 flex flex-wrap gap-2">
-                        {message.images.map((img, i) => (
-                          <img
-                            key={i}
-                            src={img.startsWith("/images") ? img : `/api${img}`}
-                            alt="Relevant"
-                            className="w-24 h-24 object-contain border"
-                          />
-                        ))}
-                      </div>
+                      <>
+                        {console.log("DEBUG: message.images", message.images)}
+                        <ImageThumbnails images={message.images} />
+                      </>
                     )}
+
+
+
                     {/* FUENTES */}
                     {message.sources && message.sources.length > 0 && (
                       <div className="mt-2 text-sm text-gray-600">

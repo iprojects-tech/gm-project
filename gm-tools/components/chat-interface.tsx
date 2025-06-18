@@ -7,13 +7,14 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { cn } from "@/lib/utils"
 import { motion, AnimatePresence } from "framer-motion"
+import ImageThumbnails, { ImageData } from "./MiniImages" 
 
 type Message = {
   id: number
   role: "user" | "assistant"
   content: string
-  sources?: string[] // arreglo opcional de fuentes
-  images?: string[]
+  sources?: string[]
+  images?: ImageData[]
 }
 
 const initialMessages: Message[] = [
@@ -62,16 +63,22 @@ export default function ChatInterface() {
 
       const data = await response.json()
       const sourcesArray: string[] | undefined = data.sources
-      const imagesArray: string[] | undefined = data.images    // <--- NUEVO
+      // data.images puede venir como array de objetos tipo ImageData o string, normalízalo aquí:
+      const imagesArray: ImageData[] | undefined = data.images
+        ? data.images.map((img: any) =>
+            typeof img === "string"
+              ? { src: img, source: "", page: undefined }
+              : img
+          )
+        : []
 
       const botMessage: Message = {
         id: Date.now() + 1,
         role: "assistant",
         content: data.answer || "Sorry, I couldn't get an answer.",
         sources: sourcesArray,
-        images: imagesArray,        
+        images: imagesArray,
       }
-
 
       setMessages((prev) => [...prev, botMessage])
     } catch (error) {
@@ -119,29 +126,22 @@ export default function ChatInterface() {
                       >
                         {message.role === "user" ? "U" : "AI"}
                       </div>
-                      <div className="flex-1 whitespace-pre-wrap">{message.content}</div>
+                      {/* TEXTO MÁS GRANDE */}
+                      <div className="flex-1 whitespace-pre-wrap text-lg">{message.content}</div>
                     </div>
-
 
                     {/* Mostrar images si existen */}
                     {message.role === "assistant" && message.images && message.images.length > 0 && (
-                      <div className="mt-4 flex flex-wrap gap-2">
-                        {message.images.map((img, i) => (
-                          <img
-                            key={i}
-                            src={img.startsWith("/images") ? `http://localhost:8000${img}` : img}
-                            alt="Relevant"
-                            className="w-24 h-24 object-contain border"
-                          />
-                        ))}
+                      <div className="my-8">
+                        <ImageThumbnails images={message.images} />
                       </div>
                     )}
 
-                    {/* Mostrar sources si existen */}
+                    {/* Mostrar sources si existen, solo las 3 primeras */}
                     {message.role === "assistant" && message.sources && message.sources.length > 0 && (
-                      <div className="mt-4 text-sm text-gray-600 dark:text-gray-400">
+                      <div className="mt-8 text-sm text-gray-600 dark:text-gray-400">
                         <strong>Sources:</strong>
-                        {message.sources.map((source, i) => (
+                        {message.sources.slice(0, 3).map((source, i) => (
                           <pre
                             key={i}
                             className="whitespace-pre-wrap mb-2 bg-gray-100 dark:bg-gray-800 p-2 rounded text-xs font-mono"
